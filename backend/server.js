@@ -2,6 +2,7 @@ import express from "express";
 import authRoutes from "./routes/auth.routes.js"
 import dotenv from "dotenv"
 import connectDB from "./db/connectMongoDb.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config()
 const app=express()
@@ -10,6 +11,7 @@ const app=express()
 app.use(express.json());
 app.use("/api/auth",authRoutes)
 app.use(express.urlencoded({ extended: true })); // to parse form data(urlencoded)
+app.use(cookieParser());
 
 connectDB()
 .then(()=>{
