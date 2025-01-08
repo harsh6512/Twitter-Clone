@@ -36,7 +36,7 @@ const signup = asyncHandler(async (req, res, next) => {
             password,
         });
 
-        const createdUser = await User.findById(newUser._id).select("-password -refreshToken");
+        const createdUser = await User.findById(newUser._id).select("-password");
 
         if (!createdUser) {
             return next(new ApiError(500, "Something went wrong while registering the user"));
@@ -52,17 +52,62 @@ const signup = asyncHandler(async (req, res, next) => {
 });
 
 
-const login=async(req,res)=>{
-    res.json({
-        data:"this is the login endpoint"
-    })
+const login=async(req,res,next)=>{
+   try {
+     const {username,password}=req.body
+     if(!username || !password){
+         throw new ApiError(400,"Both username and password is required")
+     }
+    
+     const user = await User.findOne({ username })
+     if(!user){
+        throw new ApiError(400,"user with the given username is not found")
+     }
+
+     const isPasswordValid = await user.isPasswordCorrect(password)
+     if(!isPasswordValid){
+        throw new ApiError(401,"invalid user credentials")
+     }
+
+     const userDetails=await User.findById(user._id).select("-password");
+     if(!userDetails){
+        throw new ApiError(500,"unable to fetch the user data at the moment")
+     }
+
+     generateTokenAndSetCookie(user._id, res);
+
+     return res
+     .status(200)
+     .json(new ApiResponse(200,userDetails,"User logged in successfully"))
+
+   } catch (error) {
+    console.error("Error in login controller", error.message);
+    return next(new ApiError(500, error.message || "Internal server error"));
+   }
+
 }
 
-const logout=async(req,res)=>{
-    res.json({
-        data:"this is the signup endpoint"
-    })
-}
+export const logout = async (req, res,next) => {
+	try {
+		res.cookie("jwt", "", { maxAge: 0 });
+		res
+        .status(200)
+        .json(new ApiResponse(200,"","User looged out successfully"));
+	} catch (error) {
+		console.log("Error in logout controller", error.message);
+        return next(new ApiError(500, error.message || "Internal server error"));	}
+};
+
+export const getMe = async (req, res) => {
+	try {
+		const user = await User.findById(req.user._id).select("-password");
+		res
+        .status(200)
+        .json(new ApiResponse(200,user,"user details fetched successfully"));
+	} catch (error) {
+		console.log("Error in getMe controller", error.message);
+        return next(new ApiError(500, error.message || "Internal server error"));	}
+};
 
 export {
     login,
