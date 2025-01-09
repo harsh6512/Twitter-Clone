@@ -9,9 +9,9 @@ const app=express()
 
 
 app.use(express.json());
-app.use("/api/auth",authRoutes)
-app.use(express.urlencoded({ extended: true })); // to parse form data(urlencoded)
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use("/api/auth",authRoutes);
 
 connectDB()
 .then(()=>{

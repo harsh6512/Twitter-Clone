@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 
 export const protectRoute =async(req,res,next)=>{
     try {
-        const token = req.cookies.jwt;
+        const token = req.cookies?.jwt;
 
         if (!token) {
             throw new ApiError(401, "Unauthorized: No token provided");
@@ -16,7 +16,7 @@ export const protectRoute =async(req,res,next)=>{
             throw new ApiError(401, "Unauthorized: Invalid token");
         }
     
-        const user = await User.findById(decoded._id).select("-password");
+        const user = await User.findById(decoded.userId).select("-password");
     
         if (!user) {
             throw new ApiError(404, "User not found in the database");
