@@ -1,6 +1,4 @@
 import jwt from "jsonwebtoken"
-import {asyncHandler} from "../utils/asyncHandler.js"
-
 export const generateTokenAndSetCookie=(userId,res)=>{
     const token=jwt.sign({userId},process.env.JWT_SECRET,{
         expiresIn:"15d",
