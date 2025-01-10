@@ -2,6 +2,8 @@ import {User} from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import {ApiResponse} from "../utils/ApiResponse.js"
+import { Notification } from "../models/notification.model.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const getUserProfile=asyncHandler(async(req,res,next)=>{
     const {username}=req.params;
@@ -68,6 +70,12 @@ const followUnfollowUser=asyncHandler(async(req,res,next)=>{
         }
      })
 
+     await Notification.create({
+        type: "follow",
+        from: req.user._id,
+        to: userToFollow._id,
+    });    
+
      const updatedUser=await User.findByIdAndUpdate(req.user._id,{ $push: 
         { following: id } 
     },{new:true});
@@ -81,7 +89,16 @@ const followUnfollowUser=asyncHandler(async(req,res,next)=>{
    }
 })
 
+const getSuggestedUsers=asyncHandler(async(req,res,next)=>{
+})
+
+const updateUser=asyncHandler(async(req,res)=>{
+
+})
+
 export {
     getUserProfile,
     followUnfollowUser,
+    getSuggestedUsers,
+    updateUser,
 }
