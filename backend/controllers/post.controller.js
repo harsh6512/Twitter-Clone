@@ -1,4 +1,4 @@
-import { User } from "../models/user.model.js";
+import { User} from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -152,9 +152,169 @@ const likeUnlikePost=asyncHandler(async(req,res,next)=>{
         return next(new ApiError(500, error.message || "Internal server error"));
     }    
 })
+
+const getAllPosts=asyncHandler(async(req,res,next)=>{
+    try {
+        const posts=await Post.find()
+        .sort({createdAt:-1})
+        .populate({
+            path:"user",
+            select:"-password"
+        })
+        .populate({
+            path:"comments.user",
+            select:"-password",
+        });
+
+        if(!posts){
+            throw new ApiError(500,"No post found in the database")
+        }
+        if(posts.length===0){
+            return res
+            .status(200)
+            .json(new ApiResponse(200,"","The user has no posts"))
+        }
+
+        return res
+        .status(200)
+        .json(new ApiResponse(200,posts,"User Posts fetched successfully"))
+    } catch (error) {
+        console.error("Error in getAllPosts controller", error.message);
+        return next(new ApiError(500, error.message || "Internal server error"));
+    }
+})
+
+const getLikedPosts=asyncHandler(async(req,res,next)=>{
+    const userId=req.params.id
+    if(!userId){
+        throw new ApiError(400,"User id is required")
+    }
+
+    try {
+        const user=await User.findById(userId)
+        if(!user){
+            throw new ApiError(400,"The user not found in the database")
+        }    
+
+        const likedPosts=await Post.find({
+            _id:{$in:user.likedPosts}
+        }).populate({
+            path:"user",
+            select:"-password",
+        }).populate({
+            path:"comments.user",
+            select:"-password",
+        })
+
+        if(likedPosts.length===0){
+            return res.status(200)
+            .json(new ApiResponse(200,"","The user has no liked posts"))
+        }
+
+        return res
+        .status(200)
+        .json(new ApiResponse(200,likedPosts,"User liked posts fecthed successfully"))
+    } catch (error) {
+        console.error("Error in getLikedPosts controller", error.message);
+        return next(new ApiError(500, error.message || "Internal server error"));
+    }
+})
+
+const getFollowingPosts = asyncHandler(async (req, res, next) => {
+    try {
+      const userId = req.user._id;
+      if (!userId) {
+        throw new ApiError(400, "User id is required");
+      }
+  
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new ApiError(404, "User not found in the database");
+      }
+  
+      const following = user.following;
+      if (following.length === 0) {
+        return res
+          .status(200)
+          .json(new ApiResponse(200, "", "The user is not following anyone"));
+      }
+  
+      const feedPosts = await Post.find({ user: { $in: following } })
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "user",
+          select: "-password",
+        })
+        .populate({
+          path: "comments.user",
+          select: "-password",
+        });
+  
+      if (feedPosts.length === 0) {
+        return res
+          .status(200)
+          .json(
+            new ApiResponse(200, "", "Your following hasn't posted any posts yet")
+          );
+      }
+  
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(200, feedPosts, "The following posts fetched successfully")
+        );
+    } catch (error) {
+      console.error("Error in getFollowingPosts controller", error.message);
+      return next(new ApiError(500, error.message || "Internal server error"));
+    }
+  });
+  
+
+const getUserPosts = asyncHandler(async (req, res, next) => {
+    try {
+      const { username } = req.params;
+      if (!username) {
+        throw new ApiError(400, "The username is required");
+      }
+  
+      const user = await User.findOne({ username });
+      if (!user) {
+        throw new ApiError(404, "The user not found in the database");
+      }
+  
+      const posts = await Post.find({ user: user._id })
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "user",
+          select: "-password",
+        })
+        .populate({
+          path: "comments.user",
+          select: "-password",
+        });
+  
+      if (posts.length === 0) {
+        return res
+          .status(200)
+          .json(new ApiResponse(200, "", "The user has no posts"));
+      }
+  
+      return res
+        .status(200)
+        .json(new ApiResponse(200, posts, "User Posts fetched successfully"));
+    } catch (error) {
+      console.error("Error in getUserPosts controller", error.message);
+      return next(new ApiError(500, error.message || "Internal server error"));
+    }
+  });
+  
 export {
     createPost,
     deletePost,
     commentOnPost,
     likeUnlikePost,
+    getAllPosts,
+    getLikedPosts,
+    getFollowingPosts,
+    getUserPosts,
 }
