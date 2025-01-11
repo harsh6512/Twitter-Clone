@@ -114,8 +114,7 @@ const getSuggestedUsers = asyncHandler(async (req, res, next) => {
     
         res
         .status(200)
-        .json(200,suggestedUsers,"User suggested successfully")
-    
+        .json(new ApiResponse(200,suggestedUsers,"User suggested successfully"))
     } catch (error) {
         console.error("Error in getSuggestedUser controller", error.message);
         return next(new ApiError(500, error.message || "Internal server error"));
