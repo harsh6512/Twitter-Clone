@@ -4,6 +4,9 @@ import HomePage from './pages/home/HomePage';
 import SignUpPage from './pages/auth/signup/SignUpPage';
 import LoginPage from './pages/auth/login/LoginPage';
 import SideBar from './components/common/SideBar';
+import RightPanel from './components/common/RightPanel';
+import NotificationPage from './pages/notification/NotificationPage';
+import ProfilePage from './pages/profile/ProfilePage';
 
 function App() {
   return (
@@ -13,7 +16,10 @@ function App() {
 				<Route path='/' element={<HomePage/>} />
 				<Route path='/signup' element={<SignUpPage/>} />
 				<Route path='/login' element={<LoginPage />} />
+				<Route path='/notifications' element={<NotificationPage/>} />
+				<Route path='/profile/:username' element={<ProfilePage/>} />
 			</Routes>
+			<RightPanel/>
 		</div>
   );
 }
