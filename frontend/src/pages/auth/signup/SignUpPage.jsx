@@ -7,6 +7,8 @@ import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({
@@ -16,21 +18,59 @@ const SignUpPage = () => {
 		password: "",
 	});
 
+	const queryClient = useQueryClient();
+
+	const { mutate, isError, isPending, error } = useMutation({
+		mutationFn: async ({ email, username, fullName, password }) => {
+		  try {
+			const res = await fetch("/api/auth/signup", {
+			  method: "POST",
+			  headers: {
+				"Content-Type": "application/json",
+			  },
+			  body: JSON.stringify({ email, username, fullName, password }),
+			});
+	  
+			const data = await res.json();
+	  
+			// Handle non-2xx responses with specific error messages
+			if (!res.ok) {
+			  // Use the error message from the server response, if available
+			  throw new Error(data.message || "Failed to create account");
+			}
+	  
+			console.log("Response Data:", data);
+			return data; // Return the entire response for further use
+		  } catch (error) {
+			console.error("Error in mutation:", error.message);
+			throw error; // Propagate the error for `isError` handling
+		  }
+		},
+		onSuccess: (data) => {
+		  // Display a success message and invalidate relevant queries
+		  toast.success(data.message || "Account created successfully");
+		  queryClient.invalidateQueries({ queryKey: ["authUser"] });
+		},
+		onError: (error) => {
+		  // Display a toast with the error message
+		  toast.error(error.message || "An unexpected error occurred");
+		},
+	  });
+	  
+
 	const handleSubmit = (e) => {
-		e.preventDefault();
-		console.log(formData);
+		e.preventDefault(); // page won't reload
+		mutate(formData);
 	};
 
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	const isError = false;
-
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen px-10'>
 			<div className='flex-1 hidden lg:flex items-center  justify-center'>
-				<XSvg className=' lg:w-2/3 fill-white' />
+				<XSvg className='lg:w-2/3 fill-white' />
 			</div>
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='lg:w-2/3  mx-auto md:mx-20 flex gap-4 flex-col' onSubmit={handleSubmit}>
@@ -82,8 +122,10 @@ const SignUpPage = () => {
 							value={formData.password}
 						/>
 					</label>
-					<button className='btn rounded-full btn-primary text-white'>Sign up</button>
-					{isError && <p className='text-red-500'>Something went wrong</p>}
+					<button className='btn rounded-full btn-primary text-white'>
+						{isPending ? "Loading..." : "Sign up"}
+					</button>
+					{isError && <p className='text-red-500'>{error.message}</p>}
 				</form>
 				<div className='flex flex-col lg:w-2/3 gap-2 mt-4'>
 					<p className='text-white text-lg'>Already have an account?</p>
