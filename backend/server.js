@@ -1,39 +1,62 @@
 import express from "express";
-import authRoutes from "./routes/auth.routes.js"
-import userRoutes from "./routes/user.routes.js"
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
-import dotenv from "dotenv"
+import notificationRoutes from "./routes/notification.route.js";
+import dotenv from "dotenv";
 import connectDB from "./db/connectMongoDb.js";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
-import notificationRoutes from "./routes/notification.route.js"
+import {ApiError} from "./utils/ApiError.js"; // Import your custom error class
 
-dotenv.config()
+dotenv.config();
 
+// Cloudinary configuration
 cloudinary.config({
-	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-	api_key: process.env.CLOUDINARY_API_KEY,
-	api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const app=express()
+const app = express();
 
+// Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use("/api/auth",authRoutes);
-app.use("/api/users",userRoutes);
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-
+// Database connection
 connectDB()
-.then(()=>{
-     app.listen(process.env.PORT || 8000,()=>{
-        console.log(`The server is running at the PORT ${process.env.PORT}`)
-     })
-})
-.catch((error)=>{
-    console.log("Mongo db connection failed",error)
-})
+    .then(() => {
+        app.listen(process.env.PORT || 8000, () => {
+            console.log(`The server is running at the PORT ${process.env.PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.log("MongoDB connection failed", error);
+    });
 
+// Global error-handling middleware (this should be the last middleware)
+app.use((err, req, res, next) => {
+    console.error("Error:", err);
+
+    if (err instanceof ApiError) {
+        // Custom error handling (ApiError is your custom error class)
+        return res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || "Something went wrong",
+        });
+    }
+
+    // Fallback to generic internal server error
+    return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+    });
+});

@@ -30,29 +30,23 @@ const SignUpPage = () => {
 			  },
 			  body: JSON.stringify({ email, username, fullName, password }),
 			});
-	  
+
 			const data = await res.json();
-	  
-			// Handle non-2xx responses with specific error messages
 			if (!res.ok) {
-			  // Use the error message from the server response, if available
 			  throw new Error(data.message || "Failed to create account");
 			}
-	  
 			console.log("Response Data:", data);
-			return data; // Return the entire response for further use
+			return data; 
 		  } catch (error) {
 			console.error("Error in mutation:", error.message);
-			throw error; // Propagate the error for `isError` handling
+			throw error;
 		  }
 		},
 		onSuccess: (data) => {
-		  // Display a success message and invalidate relevant queries
 		  toast.success(data.message || "Account created successfully");
 		  queryClient.invalidateQueries({ queryKey: ["authUser"] });
 		},
 		onError: (error) => {
-		  // Display a toast with the error message
 		  toast.error(error.message || "An unexpected error occurred");
 		},
 	  });

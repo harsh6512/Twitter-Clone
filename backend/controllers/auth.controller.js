@@ -22,11 +22,11 @@ export const signup = asyncHandler(async (req, res, next) => {
         });
 
         if (existedUser) {
-            return next(new ApiError(409, "User with given email or username already exists"));
-        }
-
+          throw new ApiError(409, "User with given email or username already exists"); 
+         }
+        
         if (password.length < 6) {
-            return next(new ApiError(400, "The password must be at least 6 characters long"));
+         throw new ApiError(400, "The password must be at least 6 characters long");
         }
 
         const newUser = await User.create({
@@ -39,12 +39,12 @@ export const signup = asyncHandler(async (req, res, next) => {
         const createdUser = await User.findById(newUser._id).select("-password");
 
         if (!createdUser) {
-            return next(new ApiError(500, "Something went wrong while registering the user"));
+            throw new ApiError(500, "Something went wrong while registering the user");
         }
 
         generateTokenAndSetCookie(newUser._id, res);
 
-        res.status(201).json(new ApiResponse(200, createdUser, "User created successfully"));
+        return res.status(201).json(new ApiResponse(200, createdUser, "User created successfully"));
     } catch (error) {
         console.error("Error in signup controller", error.message);
         return next(new ApiError(500, error.message || "Internal server error"));
