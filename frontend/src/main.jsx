@@ -11,7 +11,7 @@ const queryclient=new QueryClient({
       refetchOnWindowFocus:false,
     },
   },
-})
+});
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

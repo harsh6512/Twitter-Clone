@@ -172,7 +172,7 @@ const getAllPosts=asyncHandler(async(req,res,next)=>{
         if(posts.length===0){
             return res
             .status(200)
-            .json(new ApiResponse(200,"","The user has no posts"))
+            .json(new ApiResponse(200,[],"The user has no posts"))
         }
 
         return res
@@ -208,7 +208,7 @@ const getLikedPosts=asyncHandler(async(req,res,next)=>{
 
         if(likedPosts.length===0){
             return res.status(200)
-            .json(new ApiResponse(200,"","The user has no liked posts"))
+            .json(new ApiResponse(200,[],"The user has no liked posts"))
         }
 
         return res
@@ -236,7 +236,7 @@ const getFollowingPosts = asyncHandler(async (req, res, next) => {
       if (following.length === 0) {
         return res
           .status(200)
-          .json(new ApiResponse(200, "", "The user is not following anyone"));
+          .json(new ApiResponse(200, [], "The user is not following anyone"));
       }
   
       const feedPosts = await Post.find({ user: { $in: following } })
@@ -254,7 +254,7 @@ const getFollowingPosts = asyncHandler(async (req, res, next) => {
         return res
           .status(200)
           .json(
-            new ApiResponse(200, "", "Your following hasn't posted any posts yet")
+            new ApiResponse(200, [], "Your following hasn't posted any posts yet")
           );
       }
   
@@ -296,7 +296,7 @@ const getUserPosts = asyncHandler(async (req, res, next) => {
       if (posts.length === 0) {
         return res
           .status(200)
-          .json(new ApiResponse(200, "", "The user has no posts"));
+          .json(new ApiResponse(200, [], "The user has no posts"));
       }
   
       return res
