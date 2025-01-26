@@ -31,8 +31,8 @@ const Posts = ({ feedType, username, userId }) => {
 		queryFn: async () => {
 			try {
 				const res = await fetch(POST_ENDPOINT);
-				const data = await res.json();
-
+				const response = await res.json();
+				const data=response?.data;
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
@@ -57,7 +57,7 @@ const Posts = ({ feedType, username, userId }) => {
 					<PostSkeleton />
 				</div>
 			)}
-			{!isLoading && !isRefetching && posts?.length === 0 && (
+			{!isLoading && !isRefetching && (!Array.isArray(posts) || posts?.length === 0) && (
 				<p className='text-center my-4'>No posts in this tab. Switch 👻</p>
 			)}
 			{!isLoading && !isRefetching && posts && (

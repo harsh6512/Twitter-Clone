@@ -21,10 +21,11 @@ function App() {
 		queryFn:async()=>{
 			try {
 				const res=await fetch("/api/auth/me");
-				const data=await res.json();
-				if(data.success === false) return null;
+				const response=await res.json();
+				const data=response.data
+				if(response.success === false) return null;
 				if(!res.ok){
-					throw new Error(data.message ||"Something went wrong"
+					throw new Error(response.message ||"Something went wrong"
 					)
 				}
 				console.log("authUser is here;",data)

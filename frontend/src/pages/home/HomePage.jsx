@@ -37,9 +37,11 @@ const HomePage = () => {
 				<CreatePost />
 
 				{/* POSTS */}
-				<Posts />
+
+				<Posts feedType={feedType} />
 			</div>
 		</>
 	);
+	console.log("Feed type passed to Posts:", feedType);
 };
 export default HomePage;
