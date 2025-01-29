@@ -60,7 +60,7 @@ const Post = ({ post }) => {
 		onSuccess:(updatedLikes)=>{
 			//this code basically update the cache directly for that post
 			queryClient.setQueryData(["posts"],(olddata)=>{
-				return olddata.mao((p)=>{
+				return olddata.map((p)=>{
 					if(p._id===post._id){
 						return {...p,likes:updatedLikes}
 					}
