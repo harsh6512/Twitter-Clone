@@ -18,7 +18,7 @@ const getNotifications = asyncHandler(async (req, res, next) => {
 		if (notifications.length === 0) {
 			return res
 				.status(200)
-				.json(new ApiResponse(200, "", "No new notifications"))
+				.json(new ApiResponse(200, [], "No new notifications"))
 		}
 
 		await Notification.updateMany({ to: UserId }, { read: true });

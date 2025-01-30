@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import connectDB from "./db/connectMongoDb.js";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
-import {ApiError} from "./utils/ApiError.js"; // Import your custom error class
+import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
 
@@ -42,21 +42,4 @@ connectDB()
         console.log("MongoDB connection failed", error);
     });
 
-// Global error-handling middleware (this should be the last middleware)
-app.use((err, req, res, next) => {
-    console.error("Error:", err);
-
-    if (err instanceof ApiError) {
-        // Custom error handling (ApiError is your custom error class)
-        return res.status(err.statusCode || 500).json({
-            success: false,
-            message: err.message || "Something went wrong",
-        });
-    }
-
-    // Fallback to generic internal server error
-    return res.status(500).json({
-        success: false,
-        message: "Internal server error",
-    });
-});
+app.use(errorHandler);
