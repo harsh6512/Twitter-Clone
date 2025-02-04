@@ -5,7 +5,7 @@ import HomePage from './pages/home/HomePage';
 import SignUpPage from './pages/auth/signup/SignUpPage';
 import LoginPage from './pages/auth/login/LoginPage';
 
-import SideBar from './components/common/SideBar';
+import SideBar from './components/common/Sidebar.jsx';
 import RightPanel from './components/common/RightPanel';
 
 import NotificationPage from './pages/notification/NotificationPage';
