@@ -11,21 +11,12 @@ import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
 import errorHandler from "./middleware/errorHandler.js";
 
-// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables
-dotenv.config();  // Ensure .env is properly loaded
 
-// Debug: Check if Cloudinary env vars are loaded correctly
-console.log("Cloudinary Config:", {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+dotenv.config();  
 
-// Cloudinary configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -37,7 +28,7 @@ const app = express();
 
 connectDB()
   .then(() => {
-    // Middleware setup
+    
     app.use(express.json({ limit: "5mb" }));
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
@@ -52,14 +43,12 @@ connectDB()
     if (process.env.NODE_ENV === "production") {
       app.use(express.static(path.join(__dirname, "../frontend/dist")));
       app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+        res.sendFile(path.resolve(__dirname, "..frontend", "dist", "index.html"));
       });
     }
 
-    // Error handling middleware
     app.use(errorHandler);
 
-    // Start the server
     const PORT = process.env.PORT || 8000;
     app.listen(PORT, () => {
       console.log(`🚀 Server running on PORT ${PORT}`);
