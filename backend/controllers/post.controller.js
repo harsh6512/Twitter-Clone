@@ -21,6 +21,10 @@ const createPost=asyncHandler(async(req,res,next)=>{
             throw new ApiError(400,"The post must have either a post or text")
         }
 
+        if(text && text.length > 280){
+            throw new ApiError(400,"Post cannot exceed 280 characters")
+        }
+
         if(img){
             const uploadedResponse=await cloudinary.uploader.upload(img);
             img=uploadedResponse.secure_url
