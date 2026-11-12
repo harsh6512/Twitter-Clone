@@ -8,6 +8,10 @@ import { toast } from "react-hot-toast";
 const CreatePost = () => {
 	const [text, setText] = useState("");
 	const [img, setImg] = useState(null);
+
+	const MAX_CHARS = 280;
+	const charCount = text.length;
+	const isOverLimit = charCount > MAX_CHARS;
 	const imgRef = useRef(null);
 
 	const { data: authUser } = useQuery({ queryKey: ["authUser"] });
@@ -84,6 +88,7 @@ const CreatePost = () => {
 					placeholder='What is happening?!'
 					value={text}
 					onChange={(e) => setText(e.target.value)}
+					maxLength={MAX_CHARS}
 				/>
 				{img && (
 					<div className='relative w-72 mx-auto'>
@@ -105,8 +110,11 @@ const CreatePost = () => {
 						/>
 						<BsEmojiSmileFill className='fill-primary w-5 h-5 cursor-pointer' />
 					</div>
+					<div className={`text-sm ${isOverLimit ? 'text-red-500' : 'text-gray-400'}`}>
+						{charCount} / {MAX_CHARS}
+					</div>
 					<input type='file' accept='image/*' hidden ref={imgRef} onChange={handleImgChange} />
-					<button className='btn btn-primary rounded-full btn-sm text-white px-4'>
+					<button className='btn btn-primary rounded-full btn-sm text-white px-4' disabled={isOverLimit || charCount === 0}>
 						{isPending ? "Posting..." : "Post"}
 					</button>
 				</div>
@@ -116,3 +124,5 @@ const CreatePost = () => {
 	);
 };
 export default CreatePost;
+
+
